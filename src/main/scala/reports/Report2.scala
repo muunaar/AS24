@@ -22,7 +22,6 @@ object Report2 {
     }
       .map(entries => entries._2.foldLeft(Map.empty[String, Float]) {
         (a, el) =>
-          println((el._2 + entries._1 ))
           a ++ Map(el._1 -> (el._2 * 100 )/ entries._1.toFloat)})
       .evalMap(dist => IO(println(dist)) )
 }
