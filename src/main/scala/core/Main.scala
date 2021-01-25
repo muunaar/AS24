@@ -17,7 +17,7 @@ object Main extends IOApp{
  /** reading the listings csv file as a Stream
   * @return Stream of Map of listingId and the related Listing information.
   */
- def listings = {
+ def listings =
   csvFromFileStream[Listing]("data/listings.csv", skipHeader = true)
     .dropLast
     .fold(Map.empty[Int, Listing]) {
@@ -27,10 +27,9 @@ object Main extends IOApp{
        case Left(_) => acc
       }
     }
- }
 
- /** reading the listings csv file as a Stream
-  * @return Stream of Map of ListingId and the related Listing information
+ /** reading the listings csv file as a Stream.
+  * @return Stream of Map identified with listingId and the related Listing information.
   */
  def contacts(implicit logger : Logger[IO]) =
   csvFromFileStream[Contact]("data/contacts.csv", skipHeader = true)
@@ -43,10 +42,11 @@ object Main extends IOApp{
  def mainStream(implicit logger: Logger[IO]) = {
 
   val listingsStream = listings
-  listingsStream.broadcastTo(AverageListingSellingPrice.calculate _ )
+  listingsStream.broadcastTo(AverageListingSellingPrice.calculate _ , PercentualDistributionPerMake.calculate _ )
  }
 
  override def run(args: List[String]): IO[ExitCode] = {
+
   Slf4jLogger.create[IO] >>= { implicit logger =>
    mainStream.compile.drain.as(ExitCode.Success)
   }
