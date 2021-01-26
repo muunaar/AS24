@@ -10,7 +10,7 @@ class PercentualDistributionPerMakeSpec extends AnyFlatSpec {
 
   implicit val logger = Slf4jLogger.getLoggerFromName[IO]("Test")
 
-  "The percentual distribution per Make" should "return" in {
+  "The percentual distribution per Make" should "Map of Make and the associated percental distribution" in {
 
     val listings = Stream(
       Some(Listing(1286,"BWM",23002,2000,"dealer")),

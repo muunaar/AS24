@@ -11,7 +11,7 @@ class AverageListingSellingPriceSpec extends AnyFlatSpec {
 
   implicit val logger = Slf4jLogger.getLoggerFromName[IO]("Test")
 
-  "Average Listing price per Seller type" should "return  " in {
+  "Average Listing price per Seller type" should "A Map of sellerType with the average listing price " in {
     val listings : Stream[IO, Option[Listing]] = Stream(
       Some(Listing(1286,"BWM",23002,2000,"dealer")),
       Some(Listing(1288,"VW",48205,4500,"other")),

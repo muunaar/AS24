@@ -33,7 +33,7 @@ class AveragePrice30MostContactedSpec  extends AnyFlatSpec{
       Seq((1288, 3),(1289, 2))))
   }
 
-  "Average Price of the Thirty percent of most contacted listings" should "the average Price" in {
+  "Average Price of the Thirty percent of most contacted listings" should "the average Price of 30% contacts" in {
 
     implicit val listing = SignallingRef[IO, Map[Int, Listing]](Map(
       1286 -> Listing(1286,"BWM",23002,2000,"dealer"),

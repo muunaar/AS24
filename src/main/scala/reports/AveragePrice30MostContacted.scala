@@ -15,6 +15,13 @@ object AveragePrice30MostContacted {
     implicit logger : Logger[IO], cache: SignallingRef[IO, Map[Int, Listing]]
   ) = generate(stream).through(stream => join(stream)).through(stream => output(stream))
 
+  /** Calculates the average price for the thirty percent most contacted listings.
+   * By counting the occurences of each listingId in the contactsStream. Stored as Typle2 in the Seq.
+   * The sequence is then sorted to extract the 30% most contacted listing.
+   * @param listingStream : stream of Option[Contact]
+   * @param logger : logging
+   * @return A Stream of Seq Collection of the 30% most contacted listings.
+   */
   def generate(stream: Stream[IO, Option[Contact]])(implicit logger : Logger[IO])= {
     stream.fold(Map.empty[Int, Int]) {
       (acc, contact) => contact match {
@@ -30,6 +37,12 @@ object AveragePrice30MostContacted {
     }
   }
 
+  /** Extract the related price for each listing identified in the Seq[(listingId, count)].
+   * @param thirtyContacts: A Stream of Seq(listingId, Count) containing the 30% most contacted listings..
+   * @param logger : Logger for logging.
+   * @param cache: SignalingRef Map[listingId, Listing].
+   * @return the average price.
+   */
   def join(thirtyContacts : Stream[IO, Seq[(Int, Int)]])
           (implicit  logger: Logger[IO],
            cache: SignallingRef[IO, Map[Int, Listing]]) = {

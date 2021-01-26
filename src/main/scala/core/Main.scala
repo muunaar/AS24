@@ -17,6 +17,10 @@ object Main extends IOApp{
 
   implicit val csvFormat: IttoCSVFormat = com.github.gekomad.ittocsv.parser.IttoCSVFormat.default
 
+   /** Reading Listings csv file.
+    * Broadcasting the stream to generate the reports.
+    * @return The displayed results.
+    */
   def listings =
     csvFromFileStream[Listing]("data/listings.csv", skipHeader = true)
      .dropLast
@@ -29,6 +33,10 @@ object Main extends IOApp{
        stream => AverageListingSellingPrice.report(stream),
        stream => PercentualDistributionPerMake.report(stream))
 
+   /** Reading Contacts csv file.
+    * Broadcasting the stream to generate the reports.
+    * @return Displays the results.
+    */
   def contacts =
     csvFromFileStream[Contact]("data/contacts.csv", skipHeader = true)
      .dropLast
