@@ -1,54 +1,54 @@
 package core
 
-import cats.effect.{ExitCode, IO, IOApp}
-import cats.implicits.{catsSyntaxApplicativeId, catsSyntaxFlatMapOps}
+import cats.effect._
+import cats.implicits._
 import com.github.gekomad.ittocsv.parser.IttoCSVFormat
-import com.github.gekomad.ittocsv.parser.io.FromFile._
+import com.github.gekomad.ittocsv.parser.io.FromFile.csvFromFileStream
+import fs2.concurrent.SignallingRef
 import io.chrisdavenport.log4cats.Logger
 import io.chrisdavenport.log4cats.slf4j.Slf4jLogger
 
 object Main extends IOApp{
 
- import reports._
  import datatypes._
+ import reports._
 
- implicit val csvFormat: IttoCSVFormat = com.github.gekomad.ittocsv.parser.IttoCSVFormat.default
+ def mainStream(implicit logger: Logger[IO], cache: SignallingRef[IO, Map[Int, Listing]]) = {
 
- /** reading the listings csv file as a Stream
-  * @return Stream of Map of listingId and the related Listing information.
-  */
- def listings =
-  csvFromFileStream[Listing]("data/listings.csv", skipHeader = true)
-    .dropLast
-    .fold(Map.empty[Int, Listing]) {
-     (acc, listing) =>
-      listing match {
-       case Right(l) => acc + (l.id -> l)
-       case Left(_) => acc
-      }
-    }
+  implicit val csvFormat: IttoCSVFormat = com.github.gekomad.ittocsv.parser.IttoCSVFormat.default
 
- /** reading the listings csv file as a Stream.
-  * @return Stream of Map identified with listingId and the related Listing information.
-  */
- def contacts(implicit logger : Logger[IO]) =
-  csvFromFileStream[Contact]("data/contacts.csv", skipHeader = true)
-    .dropLast
-    .evalMap {
-     case Right(contact) => Some(contact).pure[IO]
-     case Left(err) => logger.error(err.toString()).flatMap(_ => None.pure[IO])
-    }
+  def listings =
+   csvFromFileStream[Listing]("data/listings.csv", skipHeader = true)
+     .dropLast
+     .evalMap {
+      case Right(listing) =>
+       cache.update( _ + (listing.id -> listing)) >> Some(listing).pure[IO]
+      case Left(err) => logger.error(err.toString())  >>  None.pure[IO]
+     }
+     .broadcastTo(
+      stream => AverageListingSellingPrice.report(stream),
+      stream => PercentualDistributionPerMake.report(stream)
+     )
 
- def mainStream(implicit logger: Logger[IO]) = {
+  def contacts =
+   csvFromFileStream[Contact]("data/contacts.csv", skipHeader = true)
+     .dropLast
+     .evalMap {
+      case Right(contact) => Some(contact).pure[IO]
+      case Left(err) => logger.error(err.toString()).flatMap(_ => None.pure[IO])
+     }
+     .broadcastTo(stream => AveragePrice30MostContacted.report(stream),
+      stream => TopFive.report(stream))
 
-  val listingsStream = listings
-  listingsStream.broadcastTo(AverageListingSellingPrice.calculate _ , PercentualDistributionPerMake.calculate _ )
+  listings interleaveAll contacts
  }
 
  override def run(args: List[String]): IO[ExitCode] = {
+  for {
+   implicit0(cache : SignallingRef[IO, Map[Int, Listing]]) <- SignallingRef[IO, Map[Int, Listing]](Map.empty)
+   implicit0(logger : Logger[IO]) <- Slf4jLogger.create[IO]
+   _  <- mainStream.compile.drain
+  } yield (ExitCode.Success)
 
-  Slf4jLogger.create[IO] >>= { implicit logger =>
-   mainStream.compile.drain.as(ExitCode.Success)
-  }
  }
 }
