@@ -9,6 +9,9 @@ import io.chrisdavenport.log4cats.Logger
 object PercentualDistributionPerMake {
 
   def report(listingStream: Stream[IO, Option[ Listing]])(implicit logger: Logger[IO]) =
+    generate(listingStream).through(stream  => output (stream))
+
+  def generate(listingStream: Stream[IO, Option[ Listing]])(implicit logger: Logger[IO]) =
     listingStream
       .fold(0, Map.empty[String, Int]) { (acc, listings) =>
         listings.map{
@@ -22,8 +25,6 @@ object PercentualDistributionPerMake {
           make -> (count* 100)/ total.toFloat
         }
       }
-      .through( stream  => output (stream))
-
 
   def output(streamListings: Stream[IO, Map[String, Float]])(implicit logger: Logger[IO]) = {
     val at = new AsciiTable()

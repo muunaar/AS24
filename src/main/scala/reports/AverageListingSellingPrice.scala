@@ -9,7 +9,10 @@ object AverageListingSellingPrice {
 
   import datatypes._
 
-  def report(listingStream: Stream[IO, Option[ Listing]])(implicit logger: Logger[IO]) =
+  def report(listingStream: Stream[IO, Option[Listing]])(implicit logger: Logger[IO]) =
+    generate(listingStream).through(output _)
+
+  def generate(listingStream: Stream[IO, Option[Listing]])(implicit logger: Logger[IO]) =
     listingStream.fold(Map.empty[String, (Int, Int)]) {
       (acc, listing) => {
         listing.map { listing => acc.updatedWith(listing.sellerType) {
@@ -21,7 +24,7 @@ object AverageListingSellingPrice {
     }.map{ entry  => entry.map {
       case (sellerType,(sumPrices, count)) => sellerType  -> (sumPrices / count)
     }
-    }.through(output _)
+    }
 
   def output(stream: Stream[IO, Map[String, Int]])(implicit logger: Logger[IO]): Stream[IO, Unit] = {
     val at = new AsciiTable()

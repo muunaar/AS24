@@ -2,13 +2,14 @@ package reports
 
 import cats.effect.IO
 import cats.implicits._
-import datatypes.{Contact, Listing}
-import de.vandermeer.asciitable.AsciiTable
 import fs2.Stream
 import fs2.concurrent.SignallingRef
 import io.chrisdavenport.log4cats.Logger
+import de.vandermeer.asciitable.AsciiTable
 
 object AveragePrice30MostContacted {
+
+  import datatypes._
 
   def report(stream: Stream[IO, Option[Contact]])(
     implicit logger : Logger[IO], cache: SignallingRef[IO, Map[Int, Listing]]
