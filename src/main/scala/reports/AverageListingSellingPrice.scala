@@ -21,9 +21,10 @@ object AverageListingSellingPrice {
         }
         }.getOrElse(acc)
       }
-    }.map{ entry  => entry.map {
-      case (sellerType,(sumPrices, count)) => sellerType  -> (sumPrices / count)
-    }
+    }.map { entry  =>
+       entry.map {
+         case (sellerType,(sumPrices, count)) => sellerType  -> (sumPrices / count)
+       }
     }
 
   def output(stream: Stream[IO, Map[String, Int]])(implicit logger: Logger[IO]): Stream[IO, Unit] = {
@@ -41,7 +42,6 @@ object AverageListingSellingPrice {
       at.addRule()
 
       logger.info(s"\n${at.render()}")
-
     }
   }
 }

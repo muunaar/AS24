@@ -19,8 +19,7 @@ object PercentualDistributionPerMake {
             prev => Some(prev.fold(1) {existing => existing + 1})
           })
         }.getOrElse(acc)
-      }
-      .map{ case (total, occurencesPerMake) =>
+      }.map{ case (total, occurencesPerMake) =>
         occurencesPerMake.map { case (make, count) =>
           make -> (count* 100)/ total.toFloat
         }
@@ -28,8 +27,10 @@ object PercentualDistributionPerMake {
 
   def output(streamListings: Stream[IO, Map[String, Float]])(implicit logger: Logger[IO]) = {
     val at = new AsciiTable()
+
     at.addRule()
     at.addRow("Make", "Distribution")
+
     streamListings.evalMap { entry =>
       entry.foreach {
         case (make, dist) =>

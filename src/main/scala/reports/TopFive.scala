@@ -22,7 +22,7 @@ object TopFive {
   }
 
   def report(stream: Stream[IO, Option[Contact]])(
-    implicit logger : Logger[IO], cache: SignallingRef[IO, Map[Int, Listing]]
+    implicit logger: Logger[IO], cache: SignallingRef[IO, Map[Int, Listing]]
   ) = generate(stream).through(stream => join(stream)).through(stream => output(stream))
 
   def generate(stream: Stream[IO, Option[Contact]])(
@@ -44,7 +44,7 @@ object TopFive {
 
   //(Month, List[(Listings, contactRatecount)])
   def join(streamContactInfo: Stream[IO, Map[String, Map[Int, Int]]])(
-    implicit logger: Logger[IO], cache : SignallingRef[IO, Map[Int, Listing]]
+    implicit logger: Logger[IO], cache: SignallingRef[IO, Map[Int, Listing]]
   ) : Stream[IO, MapView[String, List[(Listing, Int)]]]  =
     streamContactInfo.evalMap{ contactMap =>
       cache.get >>= { listingsMap =>
