@@ -1,4 +1,4 @@
-package Reports
+package reports
 
 import cats.effect.IO
 import de.vandermeer.asciitable.AsciiTable
