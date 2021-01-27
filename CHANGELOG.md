@@ -21,7 +21,7 @@
 - Reformat the code.
 - Document the code.
 
-#[0.1.0]
+# [0.1.0]
 ## Added
 
 - Report 1 : Average Listing price per Seller Type.
