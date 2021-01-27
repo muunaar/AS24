@@ -27,3 +27,9 @@ in the uploaded CSV to fulfill the above requirements
 4. write a web application that consumes the API, uploads files and displays the reports
 5. dockerize your application
 
+## Running the Application
+
+Go to the terminal run the command :
+``` sbt run  ```
+
+
