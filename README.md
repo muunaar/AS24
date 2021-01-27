@@ -10,7 +10,7 @@ The Top 5 most contacted listings per Month
 This repository holds the source code of the coding challenge
 assigned by : AutoScout24. The project is built using Scala.
 
-##Requirements
+## Requirements
 
 Write an application that reads the supplied CSV lists and generates the following reports:
 1. Average Listing Selling Price per Seller Type
